@@ -27,14 +27,14 @@ app.post('/test', async (req, res) => {
   const curl = JSON.parse(req.body.command)
   console.log(curl)
 
-  // const completion = await openai.createChatCompletion({
-  //   model: "gpt-3.5-turbo",
-  //   messages: [{
-  //     "role": "system",
-  //     "content": `${text}\n\ This is a curl command and it's response. Can you make an API documentation for this Endpoint. Please include the Headers, HTTP Request Types, Request body, sample request body and Status codes, sample responses for all the cases.`
-  //   }],
-  // });
-  // console.log('result', completion.data.choices[0].message);
+  const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [{
+      "role": "system",
+      "content": `${text}\n\ This is the cURL for an API Endpoint. Can you make an API documentation for this Endpoint. Please include the Headers, HTTP Request Types, Request body, sample request body and Status codes, sample responses for all the cases.`
+    }],
+  });
+  console.log('result', completion.data.choices[0].message);
 });
 
 app.listen(port, () => {
