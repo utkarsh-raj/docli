@@ -2,7 +2,10 @@
   "name": "docli",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "bin/docli.js",
+  "bin": {
+    "docli": "./bin/docli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
