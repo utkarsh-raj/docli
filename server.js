@@ -16,7 +16,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 // Trust the proxy to handle protocols
-// app.set('trust proxy', false);
+app.set('trust proxy', true);
 const port = 5086;
 
 app.all('/makeRequest/*',  async (req, res) => {
@@ -29,16 +29,17 @@ app.all('/makeRequest/*',  async (req, res) => {
 
   const requestBody = req.body;
   const requestHeaders = req.headers; 
+  delete requestHeaders.host;
 
-  // console.log(baseUrl, requestBody, requestHeaders, req)
+  console.log(requestHeaders, req.host)
 
   const response = await axios(baseUrl,{
     method: req.method,
-    headers: requestHeaders,
+    headers: {...requestHeaders},
     data: requestBody
-  })
+  });
 
-  console.log(response)
+  const queryResponse = response.data;
   
 
 
