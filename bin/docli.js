@@ -3,7 +3,23 @@
 const axios = require('axios');
 
 // Get the string argument provided after the command
-const curl = process.argv.slice(2).join(" "); // The argument at index 2
+// const curl = process.argv.slice(2).join(" "); // The argument at index 2 
+
+
+
+const commander = require('commander');
+
+commander
+  .version('1.0.0', '-v, --version')
+  .usage('[OPTIONS]...')
+  .option('-c, --custom <value>', 'Overwriting value.', 'Default')
+  .parse(process.argv);
+
+const options = commander.opts();
+
+const curl = options.custom
+
+console.log(curl)
 
 // Check if a string argument is provided
 if (curl) {
