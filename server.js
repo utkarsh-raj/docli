@@ -20,18 +20,13 @@ app.set('trust proxy', true);
 const port = 5086;
 
 app.all('/makeRequest/*',  async (req, res) => {
-  console.log('request received in /makeRequest')
-  const url = req.url;
-  
+  console.log('request received in /makeRequest')  
   
   const baseUrl = "https://" + req.url.split("/makeRequest/")[1];
-
 
   const requestBody = req.body;
   const requestHeaders = req.headers; 
   delete requestHeaders.host;
-
-  console.log(requestHeaders, req.host)
 
   const response = await axios(baseUrl,{
     method: req.method,
@@ -40,34 +35,16 @@ app.all('/makeRequest/*',  async (req, res) => {
   });
 
   const queryResponse = response.data;
-  
 
+  const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [{
+      "role": "system",
+      "content": `BaseURL:${JSON.stringify(baseUrl)}\nRequestBody"${JSON.stringify(requestBody)}\nHeaders:${JSON.stringify(requestHeaders)}\nResponse${JSON.stringify(queryResponse)}\nThese are the corresponding data for an API Endpoint. Based on these, make an API Documentation in markdown. Include the way to make the request, parse the important headers and add metadata to the best of your knowledge. Share the sample response and add other types of responses based on your knowledge and understanding of the data.`
+    }],
+  });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // const completion = await openai.createChatCompletion({
-  //   model: "gpt-3.5-turbo",
-  //   messages: [{
-  //     "role": "system",
-  //     "content": `${text}\n\ This is the cURL for an API Endpoint. Can you make an API documentation for this Endpoint. Please include the Headers, HTTP Request Types, Request body, sample request body and Status codes, sample responses for all the cases.`
-  //   }],
-  // });
-  // console.log('result', completion.data.choices[0].message);
+  console.log('result', completion.data.choices[0].message);
 })
 
 app.listen(port, () => {
