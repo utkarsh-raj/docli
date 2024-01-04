@@ -6,6 +6,7 @@ const { Configuration, OpenAIApi } = require("openai");
 const { exec } = require('child_process');
 
 
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -14,19 +15,50 @@ const openai = new OpenAIApi(configuration);
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
+// Trust the proxy to handle protocols
+// app.set('trust proxy', false);
 const port = 5086;
 
-app.post('/makeRequest',  async (req, res) => {
+app.all('/makeRequest/*',  async (req, res) => {
   console.log('request received in /makeRequest')
-  const curl = req.body.curl;
+  const url = req.url;
   
-  try {
-    const response = await executeCurlCommand(curl);
-    res.send(response);
-  } catch (err) {
-    console.log(err);
-    res.send(err);
-  }
+  
+  const baseUrl = "https://" + req.url.split("/makeRequest/")[1];
+
+
+  const requestBody = req.body;
+  const requestHeaders = req.headers; 
+
+  // console.log(baseUrl, requestBody, requestHeaders, req)
+
+  const response = await axios(baseUrl,{
+    method: req.method,
+    headers: requestHeaders,
+    data: requestBody
+  })
+
+  console.log(response)
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // const completion = await openai.createChatCompletion({
   //   model: "gpt-3.5-turbo",
   //   messages: [{
@@ -35,26 +67,7 @@ app.post('/makeRequest',  async (req, res) => {
   //   }],
   // });
   // console.log('result', completion.data.choices[0].message);
-});
-
-const curlCommand = `curl -X POST "https://api.example.com/data" -H "Content-Type: application/json" -d '{"key": "value"}'`;
-
-function executeCurlCommand(curlCommand) {
-  console.log(curlCommand)
-  return new Promise((resolve, reject) => {
-    exec(curlCommand, (error, stdout, stderr) => {
-      if (error) {
-        reject(`Error executing CURL command: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        reject(`CURL command encountered an error: ${stderr}`);
-        return;
-      }
-      resolve(stdout);
-    });
-  });
-}
+})
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

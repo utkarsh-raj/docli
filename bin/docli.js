@@ -1,43 +1,43 @@
-#!/usr/bin/env node
+import axios from "axios";
+import { command } from 'commander';
 
-const axios = require('axios');
+command('test <curlCommand>')
+  .description('Make a curl request')
+  .action((curlCommand) => {
+    const parsedCurl = parseCurlCommand(curlCommand);
 
-// Get the string argument provided after the command
-// const curl = process.argv.slice(2).join(" "); // The argument at index 2 
+    axios(parsedCurl.url, parsedCurl.options)
+      .then(response => console.log(response.data))
+      .catch(error => console.error('Error:', error));
+  });
 
+// ... (rest of the code)
 
+function parseCurlCommand(curlCommand) {
+  // Enhanced parsing logic to extract headers, body, and files
+  const url = curlCommand.match(/https?:\/\/[^\s]+/)[0];
+  const options = {};
 
-const commander = require('commander');
+  // Extract headers
+  const headers = curlCommand.match(/-H ([^\s]+)/g);
+  if (headers) {
+    options.headers = headers.map(header => header.split(':')[1].trim());
+  }
 
-commander
-  .version('1.0.0', '-v, --version')
-  .usage('[OPTIONS]...')
-  .option('-c, --custom <value>', 'Overwriting value.', 'Default')
-  .parse(process.argv);
+  // Extract request body (assuming JSON format)
+  const bodyMatch = curlCommand.match(/--data-raw|-d '([^']*)'/);
+  if (bodyMatch) {
+    options.data = JSON.parse(bodyMatch[1]);
+  }
 
-const options = commander.opts();
+  // Extract files (assuming multipart/form-data)
+  const filesMatch = curlCommand.match(/--form ([^=]+)=@([^\s]+)/g);
+  if (filesMatch) {
+    options.formData = new FormData();
+    filesMatch.forEach(file => {
+      options.formData.append(file.split('=')[1], file.split('=')[2]);
+    });
+  }
 
-const curl = options.custom
-
-console.log(curl)
-
-// Check if a string argument is provided
-if (curl) {
-  console.log('The string argument is:', curl);
-
-  // Make an API call using Axios and async/await
-  const fetchData = async () => {
-    try {
-      const response = await axios.post(`http://localhost:5086/makeRequest`, {
-        curl,
-      })
-      console.log('API Response:', response.data);
-    } catch (error) {
-      console.error('Error:', error.response.data);
-    }
-  };
-
-  fetchData();
-} else {
-  console.log('No string argument provided.');
+  return { url, options };
 }
