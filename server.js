@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const fs = require('fs');
 const { mdToPdf } = require("md-to-pdf");
 const uuid4 = require("uuid4");
 const { Configuration, OpenAIApi } = require("openai");
